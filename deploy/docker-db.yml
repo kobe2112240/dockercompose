@@ -1,0 +1,119 @@
+mysql:
+    image: 5a58d88e1b36
+    container_name: mysql
+    ports:
+        - "3306:3306"
+    volumes:
+        - /data/db/mysql:/data/db/mysql
+        - /data/logs/mysql:/data/logs/mysql
+    environment:
+        MYSQL_USER: "huaxi"
+        MYSQL_PASSWORD: "N!F3ABaFui"
+        MYSQL_ROOT_PASSWORD: "T41Df!x2L4"
+    restart: always
+redis:
+    image: c12f15d2ef75
+    container_name: redis
+    ports:
+        - "6379:6379"
+    volumes: 
+        - /data/db/redis:/data/db/redis
+        - /data/logs/redis:/data/logs/redis
+    restart: always
+memcached:
+    image: 1739564665db
+    container_name: memcached
+    ports:
+        - "11211:11211"
+    restart: always
+mongodb:
+    image:  f39f3d50590a
+    container_name: mongodb
+    ports:
+        - "27017:27017"
+    volumes:
+        - /data/db/mongodb:/data/db/mongodb
+        - /data/logs/mongodb:/data/logs/mongodb
+    environment:
+        AUTH: "yes"
+        JOURNALING: "yes"
+        MONGODB_DATABASE: "huaxi"
+        MONGODB_USER: "huaxi"
+        MONGODB_PASS: "541R4evB"
+    restart: always
+nginx:
+    image: 169bd14dcf7a
+    container_name: nginx
+    links:
+        - php
+        - node
+        - tomcat
+    ports:
+        - "80:80"
+        - "443:443"
+        - "8000:8000"
+    volumes:
+        - /data/www/htdocs:/data/www
+        - /data/logs/nginx:/var/log/nginx
+        - ./volumes/nginx/sites:/etc/nginx/sites-enabled
+        - ./volumes/nginx/includes:/etc/nginx/includes
+    extra_hosts:
+        - "db.pro.com:119.29.105.164"
+        - "api.runningdoctor.com:119.29.105.164"
+    restart: always
+php:
+    image: 0b0b9f98dff2
+    container_name: php
+    ports:
+        - "9000:9000"
+    links:
+        - node
+        - mongodb
+        - redis
+        - mysql
+    volumes:
+        - /data/www/htdocs:/data/www
+        - /data/logs/php:/data/logs/php
+    extra_hosts:
+        - "db.pro.com:119.29.105.164"
+        - "api.runningdoctor.com:119.29.105.164"
+   restart: always
+
+node:
+    image: 7d10217beb82
+    container_name: node
+    ports:
+        - "3014:3014"
+        - "3050:3050"
+        - "3051:3051"
+        - "8010:8010"
+        - "8024:8024"
+        - "3005:3005"
+    links:
+        - redis
+        - mongodb
+        - mysql
+    volumes:
+        - /data/www/htdocs:/data/www
+    extra_hosts:
+        - "db.pro.com:119.29.105.164"
+        - "api.runningdoctor.com:119.29.105.164"
+    restart: always
+
+tomcat:
+    image: 085b1a429373
+    container_name: tomcat
+    ports:
+        - "8080:8080"
+    links:
+        - redis
+        - mongodb
+        - mysql
+    volumes:
+      - /data/tomcat:/root/apache-tomcat-7.0.65/webapps
+      - /data/logs/tomcat:/root/apache-tomcat-7.0.65/logs
+    extra_hosts:
+        - "db.pro.com:119.29.105.164"
+        - "api.runningdoctor.com:119.29.105.164"
+    restart: always
+
