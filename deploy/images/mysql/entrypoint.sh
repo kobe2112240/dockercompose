@@ -36,7 +36,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 	if [ ! -d "$DATADIR/mysql" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
 			echo >&2 'error: database is uninitialized and password option is not specified '
-			echo >&2 '  You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ALLOW_EMPTY_PASSWORD and MYSQL_RANDOM_ROOT_PASSWORD'
+			echo >&2 'You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ALLOW_EMPTY_PASSWORD and MYSQL_RANDOM_ROOT_PASSWORD'
 			exit 1
 		fi
 
@@ -72,6 +72,8 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 			MYSQL_ROOT_PASSWORD="$(pwgen -1 32)"
 			echo "GENERATED ROOT PASSWORD: $MYSQL_ROOT_PASSWORD"
 		fi
+                        #默认数据库xwwd
+                        #清空原来的user表 新建root用户 
 		"${mysql[@]}" <<-EOSQL
 			-- What's done in this file shouldn't be replicated
 			--  or products like mysql-fabric won't work
@@ -79,13 +81,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 			DELETE FROM mysql.user ;
 			CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
 			GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION ;
-			DROP DATABASE IF EXISTS test ;
-			CREATE DATABASE IF NOT EXISTS group35_analyais;
-			CREATE DATABASE IF NOT EXISTS group35_ext;
-			CREATE DATABASE IF NOT EXISTS monitor;
-			CREATE DATABASE IF NOT EXISTS operations;
-			CREATE DATABASE IF NOT EXISTS partner;
-			CREATE DATABASE IF NOT EXISTS tsb_primary_store;
+			CREATE DATABASE IF NOT EXISTS xwwd;                
 			FLUSH PRIVILEGES ;
 		EOSQL
 
@@ -104,14 +100,8 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 			if [ "$MYSQL_DATABASE" ]; then
 				echo "GRANT ALL ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
 			fi
-			
-			echo "GRANT ALL ON group35_analyais.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
-			echo "GRANT ALL ON group35_ext.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
-			echo "GRANT ALL ON monitor.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
-			echo "GRANT ALL ON operations.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
-			echo "GRANT ALL ON partner.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
-			echo "GRANT ALL ON tsb_primary_store.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
-
+		#初始化数据库	
+			echo "GRANT ALL ON xwwd.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
 			echo 'FLUSH PRIVILEGES ;' | "${mysql[@]}"
 		fi
 
