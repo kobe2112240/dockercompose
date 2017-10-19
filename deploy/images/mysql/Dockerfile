@@ -1,4 +1,4 @@
-FROM centos
+FROM centos:6.8
 
 MAINTAINER hexin <hexincloud@gmail.com>
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -17,9 +17,8 @@ RUN sed -Ei "/^slow-query-log/a\long-query-time=1" /etc/my.cnf
 RUN sed -Ei "/^long-query-time/a\slow-query-log-file=\/data\/logs\/mysql\/slow_query.log" /etc/my.cnf
 
 COPY entrypoint.sh /usr/local/bin/
-COPY init_db.sql 
+
 COPY init.sql /entrypoint-initdb.d/
-COPY cardbin.sql /entrypoint-initdb.d/
 COPY comments.sql /entrypoint-initdb.d/
 COPY update.sql /entrypoint-initdb.d/
 
