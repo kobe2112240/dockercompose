@@ -1,18 +1,6 @@
-FROM ubuntu:trusty
+FROM mysql:latest
 MAINTAINER HeXin <hexincloud@gmail.com>
 
-# 添加mysql配置文件
-COPY my.cnf /etc/mysql/conf.d/my.cnf
-COPY mysqld_charset.cnf /etc/mysql/conf.d/mysqld_charset.cnf
-
-#安装mysql5.7
-RUN apt-get update && \
-    apt-get -yq install mysql-server-5.7 pwgen && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm /etc/mysql/conf.d/mysqld_safe_syslog.cnf && \
-    if [ ! -f /usr/share/mysql/my-default.cnf ] ; then cp /etc/mysql/my.cnf /usr/share/mysql/my-default.cnf; fi && \
-    mysql_install_db > /dev/null 2>&1 && \
-    touch /var/lib/mysql/.EMPTY_DB
 
 #设置免密登录 执行setup之后重新生成权限
 
